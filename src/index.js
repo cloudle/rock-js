@@ -1,10 +1,11 @@
-import compile from './transpiler';
-import { Lexer } from './transpiler/lexer';
+import { InputStream, TokenStream } from './compiler/lexer';
 
-const sourceCode = 'sum 3 3 2';
+const sourceCode = 'let userName = "Cloud"';
 
 module.exports = () => {
-	console.log(compile(sourceCode));
+	let next;
+	const tokenStream = TokenStream(InputStream(sourceCode));
+	while (next = tokenStream.next()) console.log(next);
 // 	const lexer = new Lexer();
 // 	console.log(lexer.tokenize(
 // `console.log "hello-world"`));

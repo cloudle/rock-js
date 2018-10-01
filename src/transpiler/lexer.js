@@ -45,6 +45,7 @@ export class Lexer {
 			prev = this.prev(),
 			seemLikeProperty = prev && (['.', '?.', '::', '?::'].indexOf(prev[0]) >= 0 || (!prev.spaced && prev[0] === '@')),
 			tag = colon || seemLikeProperty ? 'PROPERTY' : 'IDENTIFIER';
+
 		this.registerToken(tag, id, 0, currentLength);
 		return id.length;
 	}
