@@ -2,12 +2,16 @@ import { InputStream } from './compiler/lexer';
 import { TokenStream } from './compiler/tokenizer';
 import parse from './compiler/parser';
 
-const sourceCode = `{
-let x = 1 + 1;
-let y = x + 1;
-handSome = true;
-log(y);
-}`;
+const sourceCode = `
+print_range = λ(a, b) if a <= b {
+                        print(a);
+                        if a + 1 <= b {
+                          print(", ");
+                          print_range(a + 1, b);
+                        } else println("");
+                      };
+print_range(1, 10);
+`;
 
 module.exports = () => {
 	let next;

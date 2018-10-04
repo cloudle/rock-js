@@ -22,6 +22,7 @@ export const PRECEDENCE = {
 
 export const keywords = [
 	'const', 'let',
+	'lambda', 'λ',
 	'if', 'unless', 'else', 'then',
 	'for', 'while', 'until',
 	'switch', 'when', 'do', 'default',
