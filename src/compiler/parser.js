@@ -1,4 +1,7 @@
-import { Call, FALSE, Identifier, If, Keyword, Number, Operator, PRECEDENCE, Program, Puntuation, String } from './symbols';
+import {
+	Call, FALSE, Identifier, Declaration, If, Keyword, Number, Operator, Assign, Binary,
+	PRECEDENCE, Program, Lambda, Punctuation, String
+} from './symbols';
 
 export default function parse(input) {
 	const delimited = (start, stop, separator, parser) => {
@@ -18,7 +21,7 @@ export default function parse(input) {
 
 	const isPunctuation = (char) => {
 		const token = input.peek();
-		return token && token.type === Puntuation && (!char || token.value === char) && token;
+		return token && token.type === Punctuation && (!char || token.value === char) && token;
 	};
 
 	const isKeyword = (keyword) => {
@@ -62,7 +65,7 @@ export default function parse(input) {
 			if (hisPrecedence > myPrecedence) {
 				input.next();
 				return maybeBinary({
-					type: operator.value === '=' ? 'assign' : 'binary',
+					type: operator.value === '=' ? Assign : Binary,
 					operator: operator.value,
 					left,
 					right: maybeBinary(parseAtom(), hisPrecedence),
@@ -86,7 +89,7 @@ export default function parse(input) {
 		skipOperator('=');
 
 		return {
-			type: 'declaration',
+			type: Declaration,
 			left: token,
 			right: maybeBinary(parseAtom(), 0),
 		};
@@ -99,7 +102,7 @@ export default function parse(input) {
 
 	const parseLambda = () => {
 		return {
-			type: 'lambda',
+			type: Lambda,
 			vars: delimited('(', ')', ',', parseVars),
 			body: parseExpression(),
 		};

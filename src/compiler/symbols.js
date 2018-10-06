@@ -1,4 +1,5 @@
 export const Program = Symbol('program');
+export const Lambda = Symbol('lambda');
 export const Operator = Symbol('operator');
 export const Number = Symbol('num');
 export const String = Symbol('string');
@@ -7,7 +8,10 @@ export const Call = Symbol('call');
 export const If = Symbol('if');
 export const Keyword = Symbol('keyword');
 export const Identifier = Symbol('identifier');
-export const Puntuation = Symbol('punctuation');
+export const Declaration = Symbol('declaration');
+export const Punctuation = Symbol('punctuation');
+export const Assign = Symbol('assign');
+export const Binary = Symbol('binary');
 
 export const FALSE = { type: Boolean, value: false };
 export const TRUE = { type: Boolean, value: true };

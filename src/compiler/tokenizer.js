@@ -1,4 +1,4 @@
-import { Identifier, Keyword, keywords, Number, Operator, Puntuation, String } from './symbols';
+import { Identifier, Keyword, keywords, Number, Operator, Punctuation, String } from './symbols';
 
 export function TokenStream(input) {
 	let current;
@@ -39,7 +39,7 @@ export function TokenStream(input) {
 	};
 
 	const readPunctuation = () => ({
-		type: Puntuation,
+		type: Punctuation,
 		value: input.next(),
 	});
 
