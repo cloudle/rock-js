@@ -72,7 +72,7 @@ function makeLambda(exp, env) {
 
 function evaluateIf(exp, env) {
 	let cond = evaluate(exp.condition, env);
-	if (!cond !== false) return evaluate(exp.then, env);
+	if (cond !== false) return evaluate(exp.then, env);
 	return exp.else ? evaluate(exp.else, env) : false;
 }
 

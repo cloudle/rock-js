@@ -12,10 +12,7 @@ print_range = λ(a, b) if a <= b {
                           print_range(a + 1, b);
                         } else println("");
                       };
-sum = lambda(x, y) x + y;
-print_range(1, 10);
-print(sum(3, 3));
-print(sum(3, 10));
+print_range(1, 20);
 `;
 
 module.exports = () => {
@@ -23,7 +20,8 @@ module.exports = () => {
 		ast = parse(TokenStream(InputStream(sourceCode))),
 		globalEnv = new Environtment();
 
-	globalEnv.def('print', (content) => console.log(content));
+	globalEnv.def('print', (content) => process.stdout.write(`${content}`));
+	globalEnv.def('println', (content) => console.log(`\n${content}`));
 	evaluate(ast, globalEnv);
 
 	// console.log(tokenStream.peek());
