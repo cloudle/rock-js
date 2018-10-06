@@ -16,9 +16,16 @@ print_range = λ(a, b)
 
 #print_range(1, 9);
 
-cons = λ(a, b) λ(f) f(a, b);
-car = λ(cell) cell(λ(a, b) a);
-cdr = λ(cell) cell(λ(a, b) b);
+cons = λ(x, y)
+         λ(a, i, v)
+           if a == "get"
+              then if i == 0 then x else y
+              else if i == 0 then x = v else y = v;
+
+car = λ(cell) cell("get", 0);
+cdr = λ(cell) cell("get", 1);
+set-car! = λ(cell, val) cell("set", 0, val);
+set-cdr! = λ(cell, val) cell("set", 1, val);
 NIL = λ(f) f(NIL, NIL);
 
 foreach = λ(list, f)
@@ -27,8 +34,9 @@ foreach = λ(list, f)
 		foreach(cdr(list), f);
 	};
 
-x = cons(1, cons(2, cons(3, cons(4, cons(5, NIL)))));
-foreach(x, println);
+range = λ(a, b) if a <= b then cons(a, range(a + 1, b)) else NIL;
+
+foreach(range(1, 8), λ(x) println(x * x));
 `;
 
 module.exports = () => {
