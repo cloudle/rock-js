@@ -1,5 +1,5 @@
 import {
-	Call, FALSE, Identifier, Declaration, If, Keyword, Number, Operator, Assign, Binary,
+	Call, FALSE, Identifier, Let, If, Keyword, Number, Operator, Assign, Binary,
 	PRECEDENCE, Program, Lambda, Punctuation, String
 } from './symbols';
 
@@ -76,22 +76,40 @@ export default function parse(input) {
 		return left;
 	};
 
-	const parseVars = () => {
+	const parseVarName = () => {
 		const name = input.next();
 		if (name.type !== Identifier) input.croak('Expecting variable name');
 		return name.value;
 	};
 
-	const parseDeclaration = () => {
+	const parseVarDef = () => {
+		let name = parseVarName(), def;
+		if (isOperator('=')) { input.next(); def = parseExpression(); }
+		return { name, def };
+	};
+
+	const parseLet = () => {
 		skipKeyword('let');
-		const token = input.next();
-		if (token.type !== Identifier) input.croak('Expecting variable name');
-		skipOperator('=');
+		if (input.peek().type === Identifier) {
+			const name = input.next().value,
+				defs = delimited('(', ')', ',', parseVarDef);
+
+			return {
+				type: Call,
+				func: {
+					type: Lambda,
+					name,
+					vars: defs.map((def) => def.name),
+					body: parseExpression(),
+				},
+				args: defs.map((def) => def.def || FALSE),
+			};
+		}
 
 		return {
-			type: Declaration,
-			left: token,
-			right: maybeBinary(parseAtom(), 0),
+			type: Let,
+			vars: delimited('(', ')', ',', parseVarDef),
+			body: parseExpression(),
 		};
 	};
 
@@ -103,7 +121,8 @@ export default function parse(input) {
 	const parseLambda = () => {
 		return {
 			type: Lambda,
-			vars: delimited('(', ')', ',', parseVars),
+			name: input.peek().type === Identifier ? input.next().value : null,
+			vars: delimited('(', ')', ',', parseVarName),
 			body: parseExpression(),
 		};
 	};
@@ -138,7 +157,7 @@ export default function parse(input) {
 			}
 
 			if (isPunctuation('{')) return parseProgram();
-			if (isKeyword('let')) return parseDeclaration();
+			if (isKeyword('let')) return parseLet();
 			if (isKeyword('if')) return parseIf();
 			if (isKeyword('true') || isKeyword('false')) return parseBoolean();
 			if (isKeyword('lambda')|| isKeyword('λ')) {

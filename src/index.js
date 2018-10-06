@@ -39,12 +39,46 @@ range = λ(a, b) if a <= b then cons(a, range(a + 1, b)) else NIL;
 foreach(range(1, 8), λ(x) println(x * x));
 `;
 
+const source2 = `
+fib = λ(n) if n < 2 then n else fib(n - 1) + fib(n - 2);
+
+print("fib(10): ");
+time( λ() println(fib(10)) );
+print("fibJS(10): ");
+time( λ() println(fibJS(10)) );
+
+println("---");
+
+print("fib(20): ");
+time( λ() println(fib(20)) );
+print("fibJS(20): ");
+time( λ() println(fibJS(20)) );
+
+println("---");
+
+print("fib(27): ");
+time( λ() println(fib(27)) );
+print("fibJS(27): ");
+time( λ() println(fibJS(27)) );
+`;
+
 module.exports = () => {
-	const ast = parse(TokenStream(InputStream(sourceCode))),
+	const ast = parse(TokenStream(InputStream(source2))),
 		globalEnv = new Environment();
 
 	globalEnv.def('print', (content) => process.stdout.write(`${content}`));
 	globalEnv.def('println', (content) => console.log(content));
+	globalEnv.def("fibJS", function fibJS(n){
+		if (n < 2) return n;
+		return fibJS(n - 1) + fibJS(n - 2);
+	});
+	globalEnv.def("time", function(fn){
+		var t1 = Date.now();
+		var ret = fn();
+		var t2 = Date.now();
+		console.log("Time: " + (t2 - t1) + "ms");
+		return ret;
+	});
 	evaluate(ast, globalEnv);
 	// console.log(tokenStream.peek());
 	// while (next = tokenStream.next()) console.log(next);

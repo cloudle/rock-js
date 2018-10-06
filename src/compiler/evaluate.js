@@ -1,4 +1,16 @@
-import { Number, String, Boolean, Identifier, Assign, Binary, Program, Lambda, If, Call, } from './symbols';
+import {
+	Number,
+	String,
+	Boolean,
+	Identifier,
+	Assign,
+	Binary,
+	Program,
+	Lambda,
+	If,
+	Call,
+	Let,
+} from './symbols';
 
 export function evaluate(exp, env) {
 	switch (exp.type) {
@@ -12,6 +24,8 @@ export function evaluate(exp, env) {
 		if (exp.left.type !== Identifier)
 			throw new Error(`Cannot assign to ${JSON.stringify(exp.left)}`);
 		return env.set(exp.left.value, evaluate(exp.right, env));
+	case Let:
+		return evaluateLet(exp, env);
 	case Binary:
 		return evaluateOperator(exp, env);
 	case Lambda:
@@ -25,6 +39,16 @@ export function evaluate(exp, env) {
 	default:
 		throw new Error(`I don't know how to evaluate ${exp.type}`);
 	}
+}
+
+function evaluateLet(exp, env) {
+	exp.vars.forEach((v) => {
+		const scope = env.extend();
+		scope.def(v.name, v.def ? evaluate(v.def, env) : false);
+		env = scope;
+	});
+
+	return evaluate(exp.body, env);
 }
 
 function evaluateOperator(exp, env) {
@@ -66,12 +90,19 @@ function evaluateOperator(exp, env) {
 }
 
 function makeLambda(exp, env) {
-	return function lambda() {
+	if (exp.name) {
+		env = env.extend();
+		env.def(exp.name, lambda);
+	}
+
+	function lambda() {
 		let names = exp.vars, scope = env.extend();
 		for (let i = 0; i < names.length; i += 1)
 			scope.def(names[i], i < arguments.length ? arguments[i] : false);
 		return evaluate(exp.body, scope);
 	}
+
+	return lambda;
 }
 
 function evaluateIf(exp, env) {
