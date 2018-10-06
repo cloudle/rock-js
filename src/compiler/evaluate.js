@@ -13,7 +13,7 @@ export function evaluate(exp, env) {
 			throw new Error(`Cannot assign to ${JSON.stringify(exp.left)}`);
 		return env.set(exp.left.value, evaluate(exp.right, env));
 	case Binary:
-		return applyOperator(exp.operator, evaluate(exp.left, env), evaluate(exp.right, env));
+		return evaluateOperator(exp, env);
 	case Lambda:
 		return makeLambda(exp, env);
 	case If:
@@ -27,7 +27,11 @@ export function evaluate(exp, env) {
 	}
 }
 
-function applyOperator(op, a, b) {
+function evaluateOperator(exp, env) {
+	const op = exp.operator,
+		a = evaluate(exp.left, env),
+		b = evaluate(exp.right, env);
+
 	function num(x) {
 		if (typeof x !== 'number')
 			throw new Error(`Expected number but got ${x}`);
@@ -54,8 +58,8 @@ function applyOperator(op, a, b) {
 	case '>': return num(a) > num(b);
 	case '<=': return num(a) <= num(b);
 	case '>=': return num(a) >= num(b);
-	case '==': return num(a) === num(b);
-	case '!=': return num(a) !== num(b);
+	case '==': return a === b;
+	case '!=': return a !== b;
 	}
 
 	throw new Error(`Can't apply operator ${op}`);
