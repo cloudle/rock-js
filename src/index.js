@@ -4,6 +4,11 @@ import parse from './compiler/parser';
 import { Environment } from './compiler/environment';
 import { evaluate } from './compiler/evaluate';
 
+const experimentSource = `
+x = "Hello";
+print(x);
+`;
+
 const sourceCode = `
 print_range = λ(a, b) 
 	if a <= b {
@@ -63,7 +68,7 @@ time( λ() println(fibJS(27)) );
 `;
 
 module.exports = () => {
-	const ast = parse(TokenStream(InputStream(source2))),
+	const ast = parse(TokenStream(InputStream(experimentSource))),
 		globalEnv = new Environment();
 
 	globalEnv.def('print', (content) => process.stdout.write(`${content}`));
@@ -80,6 +85,8 @@ module.exports = () => {
 		return ret;
 	});
 	evaluate(ast, globalEnv);
+
+	console.log(ast);
 	// console.log(tokenStream.peek());
 	// while (next = tokenStream.next()) console.log(next);
 	// console.log(parse(tokenStream).program);
