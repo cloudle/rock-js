@@ -51,7 +51,9 @@ export function transplile(exp) {
 	}
 
 	function jsLet(exp) {
-		if (exp.vars.length === 0) return js(exp.body);
+		if (exp.vars.length === 0)
+			return js(exp.body);
+
 		const iife = {
 			type: Call,
 			func: {
@@ -70,7 +72,7 @@ export function transplile(exp) {
 	}
 
 	function jsLambda(exp) {
-		let code = '(function )';
+		let code = '(function ';
 		if (exp.name) code += makeVar(exp.name);
 		code += `(${exp.vars.map(makeVar).join(',')}) {`;
 		code += `return ${js(exp.body)} })`;
@@ -78,16 +80,14 @@ export function transplile(exp) {
 	}
 
 	function jsIf(exp) {
-		return `(${js(exp.condition)}!== false 
-		? 
-		:)`;
+		return `(${js(exp.condition)}!== false ? ${js(exp.then)} : ${js(exp.else || FALSE)})`;
 	}
 
 	function jsProgram(exp) {
-
+		return `(${exp.program.map(js).join(', ')})`;
 	}
 
 	function jsCall(exp) {
-
+		return `${js(exp.func)}(${exp.args.map(js).join(', ')})`;
 	}
 }

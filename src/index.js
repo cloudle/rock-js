@@ -3,10 +3,11 @@ import { TokenStream } from './compiler/tokenizer';
 import parse from './compiler/parser';
 import { Environment } from './compiler/environment';
 import { evaluate } from './compiler/evaluate';
+import { transplile } from './compiler/transpiler';
 
 const experimentSource = `
-x = "Hello";
-print(x);
+fib = λ(n) if n < 2 then n else fib(n - 1) + fib(n - 2);
+time( λ() println(fib(27)) );
 `;
 
 const sourceCode = `
@@ -71,22 +72,22 @@ module.exports = () => {
 	const ast = parse(TokenStream(InputStream(experimentSource))),
 		globalEnv = new Environment();
 
-	globalEnv.def('print', (content) => process.stdout.write(`${content}`));
-	globalEnv.def('println', (content) => console.log(content));
+	global.print = (text) => console.log(text);
+	global.print =( content) => process.stdout.write(`${content}`);
+	global.println = (content) => console.log(content);
 	globalEnv.def("fibJS", function fibJS(n){
 		if (n < 2) return n;
 		return fibJS(n - 1) + fibJS(n - 2);
 	});
-	globalEnv.def("time", function(fn){
+	global.time = function(fn){
 		var t1 = Date.now();
 		var ret = fn();
 		var t2 = Date.now();
 		console.log("Time: " + (t2 - t1) + "ms");
 		return ret;
-	});
-	evaluate(ast, globalEnv);
-
-	console.log(ast);
+	};
+	const jsCode = transplile(ast);
+	console.log(jsCode);
 	// console.log(tokenStream.peek());
 	// while (next = tokenStream.next()) console.log(next);
 	// console.log(parse(tokenStream).program);
