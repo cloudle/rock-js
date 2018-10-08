@@ -22,6 +22,7 @@ export const PRECEDENCE = {
 	'<': 7, '>': 7, '<=': 7, '>=': 7, '==': 7, '!=': 7,
 	'+': 10, '-': 10,
 	'*': 20, '/': 20, '%': 20,
+	'|>': 21,
 };
 
 export const keywords = [
@@ -35,10 +36,27 @@ export const keywords = [
 	'yield', 'await',
 ];
 
+export const operatorAliases = {
+	and: '&&',
+	or: '||',
+	is: '==',
+	isnt: '!=',
+	not: '!',
+};
+
+export const identifierAlias = {
+	yes: 'true',
+	on: 'true',
+	no: 'false',
+	off: 'false',
+};
+
 export const tokens = [
 	'(', ')', '[', ']', '{', '}', '.', ',', '?', ':', '@', '#',
-	'and', '&&', '||', 'or', 'is', '==', 'is', 'isnt', 'not', '!=', '<>',
-	'true', 'yes', 'on', 'false', 'no', 'off', 'in', 'of', 'from'
+	'&&', '||', '==', '!=', '<>',
+	'true', 'false', 'in', 'of', 'from',
+	...Object.keys(operatorAliases),
+	...Object.keys(identifierAlias),
 ];
 
 export const operators = [

@@ -3,35 +3,35 @@ import { Number, String, Boolean, Identifier, Binary, Assign, Let, Lambda, If, P
 export function transplile(exp) {
 	return js(exp);
 
-	function js(exp) {
+	function js(exp, parent) {
 		switch (exp.type) {
 		case Number:
 		case String:
 		case Boolean:
-			return jsAtom(exp);
+			return jsAtom(exp, parent);
 		case Identifier:
 			return jsIdentifier(exp);
 		case Binary:
-			return jsBinary(exp);
+			return jsBinary(exp, parent);
 		case Assign:
 			return jsAssign(exp);
 		case Let:
 			return jsLet(exp);
 		case Lambda:
-			return jsLambda(exp);
+			return jsLambda(exp, parent);
 		case If:
-			return jsIf(exp);
+			return jsIf(exp, parent);
 		case Program:
-			return jsProgram(exp);
+			return jsProgram(exp, parent);
 		case Call:
-			return jsCall(exp);
+			return jsCall(exp, parent);
 		default:
 			throw new Error(`Can not transpile ${JSON.stringify(exp)}`);
 		}
 	}
 
-	function jsAtom(exp) {
-		return JSON.stringify(exp.value);
+	function jsAtom(exp, parent) {
+		return wrapReturn(JSON.stringify(exp.value), parent);
 	}
 
 	function makeVar(name) {
@@ -42,13 +42,14 @@ export function transplile(exp) {
 		return makeVar(exp.value);
 	}
 
-	function jsBinary(exp) {
-		return `(${js(exp.left)}${exp.operator}${js(exp.right)})`;
+	function jsBinary(exp, parent) {
+		if (exp.operator === '|>') return `(${js(exp.right)}(${js(exp.left)}))`;
+		return wrapReturn(`(${js(exp.left)} ${exp.operator} ${js(exp.right)})`, parent);
 	}
 
 	function jsAssign(exp) {
-		return jsBinary(exp);
-	}
+		return `let ${js(exp.left)} ${exp.operator} ${js(exp.right)}`;
+}
 
 	function jsLet(exp) {
 		if (exp.vars.length === 0)
@@ -71,23 +72,36 @@ export function transplile(exp) {
 		return `(${js(iife)})`;
 	}
 
-	function jsLambda(exp) {
-		let code = '(function ';
+	function jsLambda(exp, parent) {
+		let code = 'function ';
 		if (exp.name) code += makeVar(exp.name);
-		code += `(${exp.vars.map(makeVar).join(',')}) {`;
-		code += `return ${js(exp.body)} })`;
-		return code;
+		code += `(${exp.vars.map(makeVar).join(',')}) { `;
+		code += `${js(exp.body, exp)} }`;
+		return wrapReturn(code, parent);
 	}
 
-	function jsIf(exp) {
-		return `(${js(exp.condition)}!== false ? ${js(exp.then)} : ${js(exp.else || FALSE)})`;
+	function jsIf(exp, parent) {
+		return wrapReturn(`(${js(exp.condition)}!== false ? ${js(exp.then)} : ${js(exp.else || FALSE)})`, parent);
 	}
 
-	function jsProgram(exp) {
-		return `(${exp.program.map(js).join(', ')})`;
+	function jsProgram(exp, parent) {
+		if (parent) {
+			return `${exp.program.map((fragment, i) => {
+				return i === exp.program.length - 1 ? `return ${js(fragment)}` : js(fragment);
+			}).join(';\n')}`;
+		} else {
+			return `${exp.program.map(js).join(';\n')}`;
+		}
 	}
 
-	function jsCall(exp) {
-		return `${js(exp.func)}(${exp.args.map(js).join(', ')})`;
+	function jsCall(exp, parent) {
+		return wrapReturn(`${js(exp.func)}(${exp.args.map(js).join(', ')})`, parent);
 	}
+}
+
+function wrapReturn(statement, parent) {
+	if (parent && parent.type === Lambda) {
+		return `return ${statement}`;
+	}
+	return statement;
 }

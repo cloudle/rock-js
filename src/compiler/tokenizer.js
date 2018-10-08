@@ -1,4 +1,4 @@
-import { Identifier, Keyword, keywords, Number, Operator, Punctuation, String } from './symbols';
+import { Identifier, Keyword, keywords, operatorAliases, identifierAlias, Number, Operator, Punctuation, String } from './symbols';
 
 export function TokenStream(input) {
 	let current;
@@ -35,7 +35,15 @@ export function TokenStream(input) {
 	const readIdentifier = () => {
 		const id = readWhile(isId);
 
-		return { type: isKeyword(id) ? Keyword :Identifier, value: id };
+		if (isKeyword(id)) {
+			return { type: Keyword, value: id };
+		} else if (operatorAliases[id]) {
+			return { type: Operator, value: operatorAliases[id] };
+		} else if (identifierAlias[id]) {
+			return { type: Identifier, value: identifierAlias[id] };
+		}
+
+		return { type: Identifier, value: id };
 	};
 
 	const readPunctuation = () => ({

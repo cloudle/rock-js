@@ -7,7 +7,11 @@ import { transplile } from './compiler/transpiler';
 
 const experimentSource = `
 fib = λ(n) if n < 2 then n else fib(n - 1) + fib(n - 2);
+chain = λ(n) 1;
 time( λ() println(fib(27)) );
+greeting = λ(name) println("Hello " + name);
+
+greeting("Cloud")
 `;
 
 const sourceCode = `
@@ -69,7 +73,12 @@ time( λ() println(fibJS(27)) );
 `;
 
 module.exports = () => {
-	const ast = parse(TokenStream(InputStream(experimentSource))),
+	const ast = parse(TokenStream(InputStream(`
+#print("hello", "world");
+addGreeting = lambda(name) { "Hello " + name + "!" };
+"Cloud Le" |> addGreeting |> print
+#x = 1 && 2;
+	`))),
 		globalEnv = new Environment();
 
 	global.print = (text) => console.log(text);
@@ -86,8 +95,10 @@ module.exports = () => {
 		console.log("Time: " + (t2 - t1) + "ms");
 		return ret;
 	};
+	console.log(ast.program[0]);
 	const jsCode = transplile(ast);
 	console.log(jsCode);
+	eval(jsCode);
 	// console.log(tokenStream.peek());
 	// while (next = tokenStream.next()) console.log(next);
 	// console.log(parse(tokenStream).program);
