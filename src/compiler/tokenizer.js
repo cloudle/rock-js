@@ -6,7 +6,7 @@ export function TokenStream(input) {
 		isDigit = char => /[0-9]/i.test(char),
 		isIdStart = char => /[a-zλ_]/i.test(char),
 		isId = char => isIdStart(char) || '?!-<>=0123456789'.indexOf(char) >= 0,
-		isOperatorChar = char => '+-*/%=&|<>!'.indexOf(char) >= 0,
+		isOperatorChar = char => '+-*/%=&|<>!.'.indexOf(char) >= 0,
 		isPunctuation = char => ',;(){}[]'.indexOf(char) >= 0,
 		isWhiteSpace = char => ' \t\n'.indexOf(char) >= 0;
 

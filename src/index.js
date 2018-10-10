@@ -75,8 +75,10 @@ time( λ() println(fibJS(27)) );
 module.exports = () => {
 	const ast = parse(TokenStream(InputStream(`
 #print("hello", "world");
-addGreeting = lambda(name) { "Hello " + name + "!" };
-"Cloud Le" |> addGreeting |> print
+console.log("hello world!");
+addGreeting = lambda(name) { "Hello " + name };
+addEx = lambda(x) { x + "!" };
+"Cloud Le" |> addGreeting |> addEx |> print
 #x = 1 && 2;
 	`))),
 		globalEnv = new Environment();
@@ -95,7 +97,7 @@ addGreeting = lambda(name) { "Hello " + name + "!" };
 		console.log("Time: " + (t2 - t1) + "ms");
 		return ret;
 	};
-	console.log(ast.program[0]);
+	// console.log(ast.program[0]);
 	const jsCode = transplile(ast);
 	console.log(jsCode);
 	eval(jsCode);

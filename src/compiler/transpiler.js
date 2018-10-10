@@ -44,6 +44,7 @@ export function transplile(exp) {
 
 	function jsBinary(exp, parent) {
 		if (exp.operator === '|>') return `(${js(exp.right)}(${js(exp.left)}))`;
+		else if (exp.operator === '.') return `${js(exp.left)}.${js(exp.right)}`;
 		return wrapReturn(`(${js(exp.left)} ${exp.operator} ${js(exp.right)})`, parent);
 	}
 
