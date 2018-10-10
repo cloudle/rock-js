@@ -74,10 +74,8 @@ function evaluateOperator(exp, env) {
 	case '*': return num(a) * num(b);
 	case '/': return num(a) / div(b);
 	case '%': return num(a) % div(b);
-	case '&&':
-	case 'and': return a !== false && b;
-	case '||':
-	case 'or': return a !== false ? a : b;
+	case '&&': return a !== false && b;
+	case '||': return a !== false ? a : b;
 	case '<': return num(a) < num(b);
 	case '>': return num(a) > num(b);
 	case '<=': return num(a) <= num(b);
