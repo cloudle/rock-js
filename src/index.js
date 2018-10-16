@@ -3,7 +3,7 @@ import { TokenStream } from './compiler/tokenizer';
 import parse from './compiler/parser';
 import { Environment } from './compiler/environment';
 import { evaluate } from './compiler/evaluate';
-import { transplile } from './compiler/transpiler';
+import { transpile } from './compiler/transpiler';
 
 const experimentSource = `
 fib = λ(n) if n < 2 then n else fib(n - 1) + fib(n - 2);
@@ -75,10 +75,11 @@ time( λ() println(fibJS(27)) );
 module.exports = () => {
 	const ast = parse(TokenStream(InputStream(`
 #print("hello", "world");
-console.log("hello world!");
-addGreeting = lambda(name) { "Hello " + name };
-addEx = lambda(x) { x + "!" };
-"Cloud Le" |> addGreeting |> addEx |> print
+#console.log("hello world!");
+let name = "cloud";
+name = "Son lE";
+let addGreeting = lambda(name) { "Hello " + name };
+name |> addGreeting |> print
 #x = 1 && 2;
 	`))),
 		globalEnv = new Environment();
@@ -98,7 +99,7 @@ addEx = lambda(x) { x + "!" };
 		return ret;
 	};
 	// console.log(ast.program[0]);
-	const jsCode = transplile(ast);
+	const jsCode = transpile(ast, globalEnv);
 	console.log(jsCode);
 	eval(jsCode);
 	// console.log(tokenStream.peek());

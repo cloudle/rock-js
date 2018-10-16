@@ -90,27 +90,37 @@ export default function parse(input) {
 
 	const parseLet = () => {
 		skipKeyword('let');
-		if (input.peek().type === Identifier) {
-			const name = input.next().value,
-				defs = delimited('(', ')', ',', parseVarDef);
-
-			return {
-				type: Call,
-				func: {
-					type: Lambda,
-					name,
-					vars: defs.map((def) => def.name),
-					body: parseExpression(),
-				},
-				args: defs.map((def) => def.def || FALSE),
-			};
-		}
+		const name = parseVarName();
+		skipOperator('=');
 
 		return {
 			type: Let,
-			vars: delimited('(', ')', ',', parseVarDef),
-			body: parseExpression(),
+			name,
+			def: parseExpression(),
 		};
+		//
+		//
+		// if (input.peek().type === Identifier) {
+		// 	const name = input.next().value,
+		// 		defs = delimited('(', ')', ',', parseVarDef);
+		//
+		// 	return {
+		// 		type: Call,
+		// 		func: {
+		// 			type: Lambda,
+		// 			name,
+		// 			vars: defs.map((def) => def.name),
+		// 			body: parseExpression(),
+		// 		},
+		// 		args: defs.map((def) => def.def || FALSE),
+		// 	};
+		// }
+		//
+		// return {
+		// 	type: Let,
+		// 	vars: delimited('(', ')', ',', parseVarDef),
+		// 	body: parseExpression(),
+		// };
 	};
 
 	const parseBoolean = () => ({

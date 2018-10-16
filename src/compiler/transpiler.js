@@ -1,6 +1,6 @@
 import { Number, String, Boolean, Identifier, Binary, Assign, Let, Lambda, If, Program, Call, FALSE } from './symbols';
 
-export function transplile(exp) {
+export function transpile(exp) {
 	return js(exp);
 
 	function js(exp, parent) {
@@ -49,28 +49,11 @@ export function transplile(exp) {
 	}
 
 	function jsAssign(exp) {
-		return `let ${js(exp.left)} ${exp.operator} ${js(exp.right)}`;
+		return `${js(exp.left)} ${exp.operator} ${js(exp.right)}`;
 }
 
 	function jsLet(exp) {
-		if (exp.vars.length === 0)
-			return js(exp.body);
-
-		const iife = {
-			type: Call,
-			func: {
-				type: Lambda,
-				vars: [exp.vars[0].name],
-				body: {
-					type: Let,
-					vars: exp.vars.slice(1),
-					body: exp.body,
-				},
-			},
-			args: [exp.vars[0].def || FALSE],
-		};
-
-		return `(${js(iife)})`;
+		return `let ${exp.name} = ${js(exp.def)}`;
 	}
 
 	function jsLambda(exp, parent) {
