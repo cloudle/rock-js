@@ -82,7 +82,10 @@ export default function parse(input) {
 		return name.value;
 	};
 
-	const parseVarDef = () => {
+	const parseVarDef = (first) => {
+		if (!first && !isPunctuation(',')) return null;
+		if (isPunctuation(',')) input.next();
+
 		let name = parseVarName(), def;
 		if (isOperator('=')) { input.next(); def = parseExpression(); }
 		return { name, def };
@@ -90,37 +93,15 @@ export default function parse(input) {
 
 	const parseLet = () => {
 		skipKeyword('let');
-		const name = parseVarName();
-		skipOperator('=');
+		let def, first = true;
+		const defs = [];
 
-		return {
-			type: Let,
-			name,
-			def: parseExpression(),
-		};
-		//
-		//
-		// if (input.peek().type === Identifier) {
-		// 	const name = input.next().value,
-		// 		defs = delimited('(', ')', ',', parseVarDef);
-		//
-		// 	return {
-		// 		type: Call,
-		// 		func: {
-		// 			type: Lambda,
-		// 			name,
-		// 			vars: defs.map((def) => def.name),
-		// 			body: parseExpression(),
-		// 		},
-		// 		args: defs.map((def) => def.def || FALSE),
-		// 	};
-		// }
-		//
-		// return {
-		// 	type: Let,
-		// 	vars: delimited('(', ')', ',', parseVarDef),
-		// 	body: parseExpression(),
-		// };
+		while (def = parseVarDef(first)) {
+			if (first) first = false;
+			defs.push(def);
+		}
+
+		return { type: Let, defs, };
 	};
 
 	const parseBoolean = () => ({

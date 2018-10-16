@@ -76,7 +76,7 @@ module.exports = () => {
 	const ast = parse(TokenStream(InputStream(`
 #print("hello", "world");
 #console.log("hello world!");
-let name = "cloud";
+let name = "cloud", age = 20;
 name = "Son lE";
 let addGreeting = lambda(name) { "Hello " + name };
 name |> addGreeting |> print

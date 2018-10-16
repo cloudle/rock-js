@@ -53,7 +53,7 @@ export function transpile(exp) {
 }
 
 	function jsLet(exp) {
-		return `let ${exp.name} = ${js(exp.def)}`;
+		return `let ${exp.defs.map((item) => `${item.name} = ${js(item.def)}`).join(', ')}`;
 	}
 
 	function jsLambda(exp, parent) {
