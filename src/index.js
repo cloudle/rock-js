@@ -74,14 +74,16 @@ time( λ() println(fibJS(27)) );
 
 module.exports = () => {
 	const ast = parse(TokenStream(InputStream(`
-#print("hello", "world");
-#console.log("hello world!");
-let name = "cloud", age = 20;
-name = "Son lE";
-let addGreeting = lambda(name) { "Hello " + name };
+#print("hello", "world")
+#console.log("hello world!")
+let name = "Stranger", age = 20
+name = "Cloud"
+let addGreeting = lambda(name)
+	let addMark = lambda(source) source + "!"
+	"Hello " + name |> addMark
 name |> addGreeting |> print
-#x = 1 && 2;
-	`))),
+#x = 1 && 2
+`))),
 		globalEnv = new Environment();
 
 	global.print = (text) => console.log(text);

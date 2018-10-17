@@ -1,4 +1,4 @@
-import { Identifier, Keyword, keywords, operatorAliases, identifierAlias, Number, Operator, Punctuation, String } from './symbols';
+import { Identifier, Keyword, keywords, operatorAliases, identifierAlias, Number, Operator, Punctuation, Indent, String } from './symbols';
 
 export function TokenStream(input) {
 	let current;
@@ -87,7 +87,13 @@ export function TokenStream(input) {
 	};
 
 	const readNext = () => {
-		readWhile(isWhiteSpace);
+		const spaced = readWhile(isWhiteSpace);
+
+		if (spaced.charAt(0) === '\n') return {
+			type: Indent,
+			value: spaced,
+		};
+
 		if (input.eof()) return null;
 
 		let char = input.peek();

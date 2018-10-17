@@ -10,6 +10,7 @@ export const Keyword = Symbol('keyword');
 export const Identifier = Symbol('identifier');
 export const Let = Symbol('let');
 export const Punctuation = Symbol('punctuation');
+export const Indent = Symbol('indent');
 export const Assign = Symbol('assign');
 export const Binary = Symbol('binary');
 

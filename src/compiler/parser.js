@@ -1,9 +1,10 @@
 import {
 	Call, FALSE, Identifier, Let, If, Keyword, Number, Operator, Assign, Binary,
-	PRECEDENCE, Program, Lambda, Punctuation, String
+	PRECEDENCE, Program, Lambda, Punctuation, Indent, String
 } from './symbols';
 
 export default function parse(input) {
+	let currentIndent = '\n';
 	const delimited = (start, stop, separator, parser) => {
 		let result = [], first = true;
 		skipPunctuation(start);
@@ -19,9 +20,28 @@ export default function parse(input) {
 		return result;
 	};
 
+	const indented = (parentIndent, innerIndent, parser) => {
+		let result = [];
+
+		while (!input.eof()) {
+			if (isIndent(parentIndent)) break;
+			if (isIndent(innerIndent)) {
+				skipIndent(innerIndent);
+				result.push(parser());
+			} else break;
+		}
+
+		return result;
+	};
+
 	const isPunctuation = (char) => {
 		const token = input.peek();
 		return token && token.type === Punctuation && (!char || token.value === char) && token;
+	};
+
+	const isIndent = (value) => {
+		const token = input.peek();
+		return token && token.type === Indent && (!value || token.value === value) && token;
 	};
 
 	const isKeyword = (keyword) => {
@@ -37,6 +57,11 @@ export default function parse(input) {
 	const skipPunctuation = (char) => {
 		if (isPunctuation(char)) input.next();
 		else input.croak(`Expecting punctuation: "${char}"`);
+	};
+
+	const skipIndent = (value) => {
+		if (isIndent(value)) input.next();
+		else input.croak(`Expecting indent: "${value}"`);
 	};
 
 	const skipOperator = (op) => {
@@ -147,6 +172,7 @@ export default function parse(input) {
 				return exp;
 			}
 
+			if (isIndent()) return parseIndented(currentIndent, input.peek().value);
 			if (isPunctuation('{')) return parseProgram();
 			if (isKeyword('let')) return parseLet();
 			if (isKeyword('if')) return parseIf();
@@ -175,15 +201,59 @@ export default function parse(input) {
 		return { type: Program, program };
 	};
 
-	const parseTopLevel = () => {
-		const program = [];
-		while (!input.eof()) {
-			program.push(parseExpression());
-			if (!input.eof()) skipPunctuation(';');
-		}
+	const parseIndented = (parentIndent, innerIndent) => {
+		const program = indented(parentIndent, innerIndent, parseExpression);
+		if (program.length === 0)  return FALSE;
+		if (program.length === 1) return program[0];
 
 		return { type: Program, program };
 	};
 
-	return parseTopLevel();
+	const parseTop = () => {
+			const program = [];
+			if (isIndent()) {
+				currentIndent = input.peek().value;
+				skipIndent('\n');
+			}
+
+			while (!input.eof()) {
+				program.push(parseExpression());
+				if (!input.eof()) {
+					currentIndent = input.peek().value;
+					skipIndent('\n');
+				}
+			}
+		// let currentIndent = '\n';
+		// const program = [], indents = [];
+		//
+		// console.log("!");
+		// while (!input.eof()) {
+		// 	console.log("!");
+		// 	if (isIndent()) {
+		// 		const nextIndent = input.next().value,
+		// 			existed = indents.indexOf(nextIndent) >= 0;
+		// 		console.log(nextIndent, '<<<');
+		// 		if (currentIndent === nextIndent) {
+		// 			program.push(parseExpression());
+		// 		}
+		// 	} else {
+		// 		console.log('!!');
+		// 		program.push(parseExpression());
+		// 	}
+		// }
+
+		return { type: Program, program };
+	};
+
+	// const parseTopLevel = () => {
+	// 	const program = [];
+	// 	while (!input.eof()) {
+	// 		program.push(parseExpression());
+	// 		if (!input.eof()) skipPunctuation(';');
+	// 	}
+	//
+	// 	return { type: Program, program };
+	// };
+
+	return parseTop();
 }
